@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - KLH Campus Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #1e40af;
+            --light-blue: #3b82f6;
+            --black: #0f172a;
+            --dark-grey: #1e293b;
+            --grey: #475569;
+            --light-grey: #cbd5e1;
+            --white: #ffffff;
+            --off-white: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--off-white);
+            color: var(--black);
+        }
+
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--grey);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover { color: var(--primary-blue); }
+        .nav-link.active { color: var(--primary-blue); }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: var(--dark-grey);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: var(--black);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: var(--white);
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .event-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
+        }
+
+        .event-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--off-white);
+            color: var(--primary-blue);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .event-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 8px;
+        }
+
+        .event-description {
+            color: var(--grey);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--grey);
+        }
+
+        .event-organizer {
+            font-size: 13px;
+            color: var(--grey);
+            margin-bottom: 16px;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-register:hover { background: var(--dark-blue); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--grey);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-grey);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        textarea { resize: vertical; min-height: 100px; }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--grey);
+        }
+
+        .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text" onclick="window.location.href='dashboard.html'">
+            <span>🎓</span>
+            KLH Campus Hub
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="events.html" class="nav-link active">Events</a>
+            <a href="lostfound.html" class="nav-link">Lost & Found</a>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>📅 Campus Events</h1>
+            <button class="btn btn-primary" onclick="openCreateModal()" id="createBtn" style="display: none;">+ Create Event</button>
+        </div>
+
+        <div id="eventsGrid" class="events-grid">
+            <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <p>Loading events...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New Event</h2>
+                <button class="close-btn" onclick="closeCreateModal()">×</button>
+            </div>
+            <form onsubmit="handleCreateEvent(event)">
+                <div class="form-group">
+                    <label>Event Title</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="eventDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Time</label>
+                    <input type="time" id="eventTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="eventLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="eventCategory" required>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Seminar">Seminar</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Technical">Technical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Organizer</label>
+                    <input type="text" id="eventOrganizer" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Event</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = 'index.html';
+
+        if (user.role === 'faculty' || user.role === 'admin') {
+            document.getElementById('createBtn').style.display = 'block';
+        }
+
+        async function loadEvents() {
+            try {
+                const response = await fetch(`${API_URL}/events`);
+                const events = await response.json();
+
+                const grid = document.getElementById('eventsGrid');
+                
+                if (events.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p><strong>No events yet</strong></p>
+                            <p style="margin-top: 8px; font-size: 14px;">Check back later for upcoming events</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = events.map(event => `
+                    <div class="event-card">
+                        <div class="event-category">${event.category}</div>
+                        <h3 class="event-title">${event.title}</h3>
+                        <p class="event-description">${event.description}</p>
+                        <div class="event-details">
+                            <div class="event-detail">📅 ${new Date(event.date).toLocaleDateString()}</div>
+                            <div class="event-detail">⏰ ${event.time}</div>
+                            <div class="event-detail">📍 ${event.location}</div>
+                        </div>
+                        <div class="event-organizer">Organized by: ${event.organizer}</div>
+                        <button class="btn-register" onclick="registerForEvent('${event._id}')">Register</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+        }
+
+        async function handleCreateEvent(e) {
+            e.preventDefault();
+            
+            const eventData = {
+                title: document.getElementById('eventTitle').value,
+                description: document.getElementById('eventDescription').value,
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value,
+                location: document.getElementById('eventLocation').value,
+                category: document.getElementById('eventCategory').value,
+                organizer: document.getElementById('eventOrganizer').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                if (response.ok) {
+                    alert('Event created successfully!');
+                    closeCreateModal();
+                    loadEvents();
+                    e.target.reset();
+                } else {
+                    alert('Failed to create event');
+                }
+            } catch (error) {
+                alert('Error creating event');
+            }
+        }
+
+        async function registerForEvent(eventId) {
+            try {
+                const response = await fetch(`${API_URL}/events/${eventId}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Successfully registered for event!');
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Error registering for event');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        loadEvents();
+    </script>
+</body>
+</html>

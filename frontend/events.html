@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Events - KLH Campus Hub</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/utils.js"></script>
+  <style>
+    body{padding:24px}
+    .container{max-width:1000px;margin:0 auto}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="site-nav">
+      <h1 class="small">Campus Events</h1>
+      <div>
+        <button class="hamburger" onclick="document.querySelector('.nav-links')?.classList.toggle('show')">☰</button>
+        <div class="nav-links">
+          <input id="searchInput" placeholder="Search events" style="padding:8px;border-radius:8px;border:1px solid #e6eefc;background:transparent;color:#fff" />
+          <select id="categoryFilter" style="padding:8px;border-radius:8px;margin-left:8px">
+            <option value="all">All</option>
+            <option value="tech">Tech</option>
+            <option value="sports">Sports</option>
+            <option value="culture">Culture</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <p id="status">Loading events…</p>
+    <div id="eventsList"></div>
+  </div>
+
+  <script>
+    const API_URL = window.__API_URL || '/api';
+    const token = localStorage.getItem('token');
+    // ensure utils are loaded early
+    if (!window.fetchJson) { const s=document.createElement('script'); s.src='/assets/utils.js'; document.head.appendChild(s);}
+
+    async function loadEvents(){
+      try{
+        const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+        const cat = (document.getElementById('categoryFilter')?.value || 'all');
+        const list = document.getElementById('eventsList');
+        list.innerHTML = '';
+        list.appendChild(createSpinner());
+        let events = await fetchJson(`${API_URL}/events`);
+        // filter
+        events = events.filter(ev => (cat === 'all' || ev.category === cat) && (q === '' || (ev.title+ev.description+ev.location).toLowerCase().includes(q)));
+        document.getElementById('status').textContent = `${events.length} events found`;
+        list.innerHTML = events.map(ev => `
+          <div class="card">
+            <h3>${ev.title}</h3>
+            <p class="small muted">${new Date(ev.date).toLocaleString()} • ${ev.location}</p>
+            <p style="margin-top:8px">${ev.description}</p>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+              <button class="btn" onclick="openEventModal('${ev._id}')">View</button>
+              <button class="btn ghost" onclick="register('${ev._id}')">Quick Register</button>
+            </div>
+          </div>
+        `).join('');
+      }catch(err){
+        document.getElementById('status').textContent = 'Error loading events';
+        console.error(err);
+        showMessage && showMessage('Unable to load events', 'err');
+      }
+    }
+
+    function openEventModal(id){
+      fetchJson(`${API_URL}/events/${id}`).then(ev => {
+        openModal({ title: ev.title, body: `<div><p class="small muted">${new Date(ev.date).toLocaleString()} • ${ev.location}</p><p style="margin-top:8px">${ev.description}</p></div>`, actions: [{ label: 'Register', onClick: () => register(id) }, { label: 'Close', close: true }] });
+      }).catch(e => { console.error(e); showMessage && showMessage('Unable to load event', 'err'); });
+    }
+
+    async function register(id){
+      if(!token){ alert('Please sign in to register'); window.location.href = 'index.html'; return; }
+      try{
+        const res = await fetch(`${API_URL}/events/${id}/register`, {
+          method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const body = await res.json();
+        if(!res.ok) return alert(body.message || 'Registration failed');
+        alert('Registered successfully');
+      }catch(e){ console.error(e); alert('Network error'); }
+    }
+
+    // wire search and filters
+    let _deb; document.getElementById('searchInput').addEventListener('input', (e)=>{ clearTimeout(_deb); _deb = setTimeout(loadEvents, 300); });
+    document.getElementById('categoryFilter').addEventListener('change', loadEvents);
+    loadEvents();
+  </script>
+</body>
+</html>

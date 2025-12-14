@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - KLH Campus Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #1e40af;
+            --light-blue: #3b82f6;
+            --black: #0f172a;
+            --dark-grey: #1e293b;
+            --grey: #475569;
+            --light-grey: #cbd5e1;
+            --white: #ffffff;
+            --off-white: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--off-white);
+            color: var(--black);
+        }
+
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--grey);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover { color: var(--primary-blue); }
+        .nav-link.active { color: var(--primary-blue); }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: var(--dark-grey);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            border-radius: 16px;
+            padding: 48px 40px;
+            color: var(--white);
+            margin-bottom: 32px;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 24px;
+        }
+
+        .profile-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-email {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .profile-role {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: capitalize;
+            margin-top: 8px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--light-grey);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--grey);
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--grey);
+            font-weight: 600;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .activity-item {
+            padding: 16px;
+            background: var(--off-white);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--black);
+            margin-bottom: 4px;
+        }
+
+        .activity-date {
+            font-size: 12px;
+            color: var(--grey);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: var(--white);
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text" onclick="window.location.href='dashboard.html'">
+            <span>🎓</span>
+            KLH Campus Hub
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="events.html" class="nav-link">Events</a>
+            <a href="lostfound.html" class="nav-link">Lost & Found</a>
+            <a href="calendar.html" class="nav-link">Calendar</a>
+            <a href="profile.html" class="nav-link active">Profile</a>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+            <h1 class="profile-name" id="profileName">Loading...</h1>
+            <p class="profile-email" id="profileEmail">user@klh.edu.in</p>
+            <span class="profile-role" id="profileRole">Student</span>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Account Information -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span>ℹ️</span>
+                    Account Information
+                </h2>
+                <div class="info-item">
+                    <span class="info-label">User ID</span>
+                    <span class="info-value" id="userId">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" id="userEmail">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Role</span>
+                    <span class="info-value" id="userRole">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Account Created</span>
+                    <span class="info-value" id="accountCreated">Loading...</span>
+                </div>
+                <button class="btn btn-primary" onclick="alert('Edit profile feature coming soon!')">
+                    Edit Profile
+                </button>
+            </div>
+
+            <!-- Activity Stats -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span>📊</span>
+                    Activity Statistics
+                </h2>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-value" id="eventsCount">0</div>
+                        <div class="stat-label">Events Registered</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="itemsReported">0</div>
+                        <div class="stat-label">Items Reported</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="itemsClaimed">0</div>
+                        <div class="stat-label">Items Claimed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span>📝</span>
+                    Recent Activity
+                </h2>
+                <div id="activityList">
+                    <div class="activity-item">
+                        <div class="activity-title">Registered for Tech Workshop</div>
+                        <div class="activity-date">2 days ago</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-title">Reported Lost Phone</div>
+                        <div class="activity-date">5 days ago</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-title">Joined Campus Hub</div>
+                        <div class="activity-date" id="joinedDate">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span>⚡</span>
+                    Quick Actions
+                </h2>
+                <button class="btn btn-primary" onclick="window.location.href='events.html'">
+                    Browse Events
+                </button>
+                <button class="btn btn-primary" onclick="window.location.href='lostfound.html'">
+                    Report Lost Item
+                </button>
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+                    Go to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        // Display user information
+        document.getElementById('profileName').textContent = user.name || 'User';
+        document.getElementById('profileEmail').textContent = user.email || 'user@klh.edu.in';
+        document.getElementById('profileRole').textContent = user.role || 'Student';
+        
+        document.getElementById('userId').textContent = user.id || 'N/A';
+        document.getElementById('userEmail').textContent = user.email || 'N/A';
+        document.getElementById('userRole').textContent = (user.role || 'Student').toUpperCase();
+        
+        // Mock account created date (you can get this from backend if available)
+        const createdDate = new Date();
+        createdDate.setDate(createdDate.getDate() - 30); // 30 days ago
+        document.getElementById('accountCreated').textContent = createdDate.toLocaleDateString();
+        document.getElementById('joinedDate').textContent = createdDate.toLocaleDateString();
+
+        // Load activity stats
+        async function loadActivityStats() {
+            try {
+                // These would typically come from backend APIs
+                // For now, using mock data
+                document.getElementById('eventsCount').textContent = '3';
+                document.getElementById('itemsReported').textContent = '1';
+                document.getElementById('itemsClaimed').textContent = '2';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (!window.showMessage) { const s=document.createElement('script'); s.src='/assets/utils.js'; document.head.appendChild(s); }
+            showMessage && showMessage('Logged out', 'ok');
+            window.location.href = 'index.html';
+        }
+
+        loadActivityStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+node_modules/
+/.env
+*.log
+tmp/
+.vscode/
+dist/
+frontend/node_modules/
+backend/node_modules/
+.env.local
+.DS_Store

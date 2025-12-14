@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Events - KLH Campus Hub</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <style>
+    body{padding:24px}
+    .container{max-width:1000px;margin:0 auto}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Campus Events</h1>
+    <p id="status">Loading events…</p>
+    <div id="eventsList"></div>
+  </div>
+
+  <script>
+    const API_URL = window.__API_URL || '/api';
+    const token = localStorage.getItem('token');
+    if (!window.fetchJson) { const s=document.createElement('script'); s.src='/assets/utils.js'; document.head.appendChild(s);}
+
+    async function loadEvents(){
+      try{
+        const list = document.getElementById('eventsList');
+        list.innerHTML = '';
+        list.appendChild(createSpinner());
+        const events = await fetchJson(`${API_URL}/events`);
+        document.getElementById('status').textContent = `${events.length} events found`;
+        list.innerHTML = events.map(ev => `
+          <div class="card">
+            <h3>${ev.title}</h3>
+            <p class="small muted">${new Date(ev.date).toLocaleString()} • ${ev.location}</p>
+            <p style="margin-top:8px">${ev.description}</p>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+              <button class="btn" onclick="register('${ev._id}')">Register</button>
+            </div>
+          </div>
+        `).join('');
+      }catch(err){
+        document.getElementById('status').textContent = 'Error loading events';
+        console.error(err);
+        showMessage && showMessage('Unable to load events', 'err');
+      }
+    }
+
+    async function register(id){
+      if(!token){ alert('Please sign in to register'); window.location.href = 'index.html'; return; }
+      try{
+        const res = await fetch(`${API_URL}/events/${id}/register`, {
+          method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const body = await res.json();
+        if(!res.ok) return alert(body.message || 'Registration failed');
+        alert('Registered successfully');
+      }catch(e){ console.error(e); alert('Network error'); }
+    }
+
+    loadEvents();
+  </script>
+</body>
+</html>

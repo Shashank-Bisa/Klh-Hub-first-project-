@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lost & Found - KLH Campus Hub</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto;background:#f8fafc;color:#0f172a;padding:24px}
+    .container{max-width:900px;margin:0 auto}
+    .item{background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 12px rgba(2,6,23,0.06);margin-bottom:12px}
+    .btn{padding:8px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lost & Found</h1>
+    <p id="status">Loading items…</p>
+    <div id="items"></div>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    const token = localStorage.getItem('token');
+
+    async function loadItems(){
+      try{
+        const container = document.getElementById('items');
+        container.innerHTML = '';
+        container.appendChild(createSpinner());
+        const items = await fetchJson(`${API_URL}/lostfound`);
+        document.getElementById('status').textContent = `${items.length} items`;
+        container.innerHTML = items.map(i => `
+          <div class="item card">
+            <h3>${i.title} <small class="small muted">(${i.category})</small></h3>
+            <p class="small muted">${new Date(i.date).toLocaleString()} • ${i.location}</p>
+            <p style="margin-top:8px">${i.description}</p>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+              ${i.status === 'open' ? `<button class="btn" onclick="claim('${i._id}')">Claim</button>` : `<span class="pill">Claimed</span>`}
+            </div>
+          </div>
+        `).join('');
+      }catch(e){ document.getElementById('status').textContent = 'Error loading items'; console.error(e); showMessage && showMessage('Unable to load items','err'); }
+    }
+
+    async function claim(id){
+      if(!token){ showMessage('Please sign in to claim','err'); window.location.href = 'index.html'; return; }
+      try{
+        await fetchJson(`${API_URL}/lostfound/${id}/claim`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
+        showMessage('Item claimed','ok');
+        loadItems();
+      }catch(e){ console.error(e); showMessage('Failed to claim','err'); }
+    }
+
+    loadItems();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found - KLH Campus Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #1e40af;
+            --light-blue: #3b82f6;
+            --black: #0f172a;
+            --dark-grey: #1e293b;
+            --grey: #475569;
+            --light-grey: #cbd5e1;
+            --white: #ffffff;
+            --off-white: #f8fafc;
+            --green: #10b981;
+            --red: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--off-white);
+            color: var(--black);
+        }
+
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--grey);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover { color: var(--primary-blue); }
+        .nav-link.active { color: var(--primary-blue); }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: var(--dark-grey);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: var(--black);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: var(--white);
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        .filters {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--light-grey);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .item-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--black);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-open {
+            background: #dcfce7;
+            color: var(--green);
+        }
+
+        .status-claimed {
+            background: #fee2e2;
+            color: var(--red);
+        }
+
+        .item-category {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--off-white);
+            color: var(--primary-blue);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .item-description {
+            color: var(--grey);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .item-detail {
+            font-size: 13px;
+            color: var(--grey);
+        }
+
+        .btn-claim {
+            width: 100%;
+            padding: 10px;
+            background: var(--green);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-claim:hover { background: #059669; }
+        .btn-claim:disabled {
+            background: var(--light-grey);
+            cursor: not-allowed;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--grey);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-grey);
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--grey);
+        }
+
+        .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text" onclick="window.location.href='dashboard.html'">
+            <span>🎓</span>
+            KLH Campus Hub
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="events.html" class="nav-link">Events</a>
+            <a href="lostfound.html" class="nav-link active">Lost & Found</a>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Lost & Found</h1>
+            <button class="btn btn-primary" onclick="openReportModal()">+ Report Item</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <select id="categoryFilter" onchange="applyFilters()">
+                    <option value="all">All Categories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Books">Books</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Search</label>
+                <input type="text" id="searchInput" placeholder="Search items..." onkeyup="applyFilters()">
+            </div>
+        </div>
+
+        <div id="itemsGrid" class="items-grid">
+            <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <p>Loading items...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Report Lost/Found Item</h2>
+                <button class="close-btn" onclick="closeReportModal()">×</button>
+            </div>
+            <form onsubmit="handleReportItem(event)">
+                <div class="form-group">
+                    <label>Item Title</label>
+                    <input type="text" id="itemTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="itemCategory" required>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Books">Books</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="itemDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Location Found/Lost</label>
+                    <input type="text" id="itemLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="itemDate" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Report</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        let allItems = [];
+
+        if (!token) window.location.href = 'index.html';
+
+        async function loadItems() {
+            try {
+                const response = await fetch(`${API_URL}/lostfound`);
+                allItems = await response.json();
+                displayItems(allItems);
+            } catch (error) {
+                console.error('Error loading items:', error);
+            }
+        }
+
+        function displayItems(items) {
+            const grid = document.getElementById('itemsGrid');
+            
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p><strong>No items found</strong></p>
+                        <p style="margin-top: 8px; font-size: 14px;">Be the first to report a lost or found item</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = items.map(item => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <h3 class="item-title">${item.title}</h3>
+                        <span class="status-badge status-${item.status}">${item.status}</span>
+                    </div>
+                    <div class="item-category">${item.category}</div>
+                    <p class="item-description">${item.description}</p>
+                    <div class="item-details">
+                        <div class="item-detail">📍 ${item.location}</div>
+                        <div class="item-detail">📅 ${new Date(item.date).toLocaleDateString()}</div>
+                    </div>
+                    <button class="btn-claim" 
+                            onclick="claimItem('${item._id}')" 
+                            ${item.status === 'claimed' ? 'disabled' : ''}>
+                        ${item.status === 'claimed' ? 'Already Claimed' : 'Claim Item'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function applyFilters() {
+            const category = document.getElementById('categoryFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allItems;
+
+            if (category !== 'all') {
+                filtered = filtered.filter(item => item.category === category);
+            }
+
+            if (search) {
+                filtered = filtered.filter(item => 
+                    item.title.toLowerCase().includes(search) ||
+                    item.description.toLowerCase().includes(search)
+                );
+            }
+
+            displayItems(filtered);
+        }
+
+        function openReportModal() {
+            document.getElementById('reportModal').classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        async function handleReportItem(e) {
+            e.preventDefault();
+            
+            const itemData = {
+                title: document.getElementById('itemTitle').value,
+                category: document.getElementById('itemCategory').value,
+                description: document.getElementById('itemDescription').value,
+                location: document.getElementById('itemLocation').value,
+                date: document.getElementById('itemDate').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/lostfound`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(itemData)
+                });
+
+                if (response.ok) {
+                    alert('Item reported successfully!');
+                    closeReportModal();
+                    loadItems();
+                    e.target.reset();
+                } else {
+                    alert('Failed to report item');
+                }
+            } catch (error) {
+                alert('Error reporting item');
+            }
+        }
+
+        async function claimItem(itemId) {
+            try {
+                const response = await fetch(`${API_URL}/lostfound/${itemId}/claim`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Item claimed successfully!');
+                    loadItems();
+                } else {
+                    alert('Failed to claim item');
+                }
+            } catch (error) {
+                alert('Error claiming item');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        loadItems();
+    </script>
+</body>
+</html>

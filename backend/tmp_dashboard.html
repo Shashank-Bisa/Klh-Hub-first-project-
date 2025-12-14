@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - KLH Campus Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #1e40af;
+            --light-blue: #3b82f6;
+            --black: #0f172a;
+            --dark-grey: #1e293b;
+            --grey: #475569;
+            --light-grey: #cbd5e1;
+            --white: #ffffff;
+            --off-white: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--off-white);
+            color: var(--black);
+        }
+
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-link {
+            color: var(--grey);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover { color: var(--primary-blue); }
+        .nav-link.active { color: var(--primary-blue); }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info { text-align: right; }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--grey);
+            text-transform: capitalize;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: var(--dark-grey);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover { background: var(--black); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        .welcome-section { margin-bottom: 32px; }
+
+        .welcome-section h1 {
+            font-size: 32px;
+            color: var(--black);
+            margin-bottom: 8px;
+        }
+
+        .welcome-section p {
+            color: var(--grey);
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            padding: 24px;
+            border-radius: 12px;
+            color: var(--white);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
+            border-color: var(--primary-blue);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: var(--grey);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-action {
+            color: var(--primary-blue);
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-section {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--black);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--grey);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-text">
+            <span>🎓</span>
+            KLH Campus Hub
+        </div>
+        <div class="nav-section">
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="lostfound.html" class="nav-link">Lost & Found</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </div>
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role" id="userRole">Student</div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h1 id="welcomeMessage">Welcome back!</h1>
+            <p>Here's what's happening on campus today</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="eventsCount">0</div>
+                <div class="stat-label">Active Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="lostItemsCount">0</div>
+                <div class="stat-label">Lost Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="foundItemsCount">0</div>
+                <div class="stat-label">Found Items</div>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="feature-card" onclick="window.location.href='events.html'">
+                <div class="card-icon">📅</div>
+                <h3 class="card-title">Campus Events</h3>
+                <p class="card-description">Browse and register for upcoming events, workshops, and activities</p>
+                <div class="card-action">View Events →</div>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='lostfound.html'">
+                <div class="card-icon">🔍</div>
+                <h3 class="card-title">Lost & Found</h3>
+                <p class="card-description">Report lost items or help return found items to their owners</p>
+                <div class="card-action">Browse Items →</div>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='profile.html'">
+                <div class="card-icon">👤</div>
+                <h3 class="card-title">My Profile</h3>
+                <p class="card-description">Manage your account settings and preferences</p>
+                <div class="card-action">View Profile →</div>
+            </div>
+        </div>
+
+        <div class="activity-section">
+            <h2 class="section-title">System Status</h2>
+            <div class="empty-state">
+                <div class="empty-state-icon">✅</div>
+                <p><strong>All systems operational</strong></p>
+                <p style="margin-top: 8px; font-size: 14px;">Backend connected • Database active • Ready to use</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('userName').textContent = user.name || 'User';
+        document.getElementById('userRole').textContent = user.role || 'Student';
+        document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.name?.split(' ')[0] || 'User'}!`;
+
+        async function loadStats() {
+            try {
+                const eventsRes = await fetch(`${API_URL}/events`);
+                const events = await eventsRes.json();
+                document.getElementById('eventsCount').textContent = events.length || 0;
+
+                const lostFoundRes = await fetch(`${API_URL}/lostfound`);
+                const items = await lostFoundRes.json();
+                const lostItems = items.filter(item => item.status === 'open').length;
+                const foundItems = items.filter(item => item.status === 'claimed').length;
+                
+                document.getElementById('lostItemsCount').textContent = lostItems;
+                document.getElementById('foundItemsCount').textContent = foundItems;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>
+

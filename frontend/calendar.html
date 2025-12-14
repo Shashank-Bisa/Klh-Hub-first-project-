@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calendar - KLH Campus Hub</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <style>
+    .calendar-wrap{max-width:1100px;margin:28px auto}
+    #calendar{background:#fff;border-radius:12px;padding:12px}
+  </style>
+</head>
+<body>
+  <div class="container calendar-wrap">
+    <div class="site-nav">
+      <h1>Calendar</h1>
+      <div class="nav-links">
+        <button class="btn" onclick="location.href='events.html'">Events</button>
+      </div>
+    </div>
+    <div id="calendar"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <script src="/assets/utils.js"></script>
+  <script>
+    const API_URL = window.__API_URL || '/api';
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    async function loadEventsForCalendar(){
+      const evs = await fetchJson(`${API_URL}/events`);
+      return evs.map(e => ({ id: e._id, title: e.title, start: e.date, allDay: false, extendedProps: { description: e.description, location: e.location, organizer: e.organizer } }));
+    }
+
+    document.addEventListener('DOMContentLoaded', async function(){
+      const events = await loadEventsForCalendar();
+      const calendarEl = document.getElementById('calendar');
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+        events,
+        dateClick: function(info){
+          if (!user.role || !['faculty','admin'].includes(user.role)) return openModal({ title: 'Create Event', body: '<p class="small muted">Only faculty & admin can create events. Please request permission.</p>' , actions:[{label:'Close'}] });
+          const body = `<div style="display:grid;gap:8px"><input id='evTitle' placeholder='Title' /><input id='evDate' type='datetime-local' value='${new Date(info.dateStr).toISOString().slice(0,16)}' /><input id='evLocation' placeholder='Location' /><textarea id='evDesc' placeholder='Description'></textarea></div>`;
+          openModal({ title: 'Create Event', body, actions: [{ label: 'Create', onClick: async () => {
+            const title = document.getElementById('evTitle').value || 'Untitled';
+            const date = document.getElementById('evDate').value; const location = document.getElementById('evLocation').value; const description = document.getElementById('evDesc').value;
+            try{ const res = await fetchJson(`${API_URL}/events`, { method:'POST', headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer '+token }, body: JSON.stringify({ title, description, date, time: (new Date(date)).toTimeString().slice(0,5), location, category: 'general', organizer: user.name || user.email || 'Organizer' }) }); showMessage('Event created', 'ok'); calendar.addEvent({ id: res._id, title: res.title, start: res.date }); closeModal(); } catch(e){ console.error(e); showMessage('Failed to create event','err'); } } }, { label: 'Cancel', close: true }] });
+        },
+        eventClick: function(info){
+          const ev = info.event;
+          const content = `<div><p class='small muted'>${ev.start.toLocaleString()} • ${ev.extendedProps.location || ''}</p><p style='margin-top:8px'>${ev.extendedProps.description || ''}</p></div>`;
+          openModal({ title: ev.title, body: content, actions: [{ label: 'Register', onClick: async () => { if (!token) { showMessage('Please sign in','err'); return; } try{ await fetchJson(`${API_URL}/events/${ev.id}/register`, { method:'POST', headers: { 'Authorization':'Bearer '+token } }); showMessage('Registered','ok'); } catch(e){ showMessage('Registration failed','err'); } } }, { label: 'Close', close: true }] });
+        }
+      });
+      calendar.render();
+    });
+  </script>
+</body>
+</html>

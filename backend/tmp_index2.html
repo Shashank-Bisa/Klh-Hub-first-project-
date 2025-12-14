@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KLH Campus Hub — Sign in</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <style>
+    /* page-specific small overrides */
+    body{background:linear-gradient(180deg,#071029 0%, #031226 100%);color:#e6eefc}
+    .card{width:min(980px,96vw);display:grid;grid-template-columns:1.2fr .8fr;border-radius:20px;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06)}
+    .hero{padding:36px;background:linear-gradient(160deg, rgba(2,6,23,.65), rgba(2,6,23,.2));color:#dbeafe}
+    .auth{padding:28px}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab{flex:1;padding:10px;border-radius:10px;background:transparent;border:0;color:#cfe1ff;font-weight:700;cursor:pointer}
+    .tab.active{background:linear-gradient(135deg,#dbeafe,#93c5fd);color:#03122d}
+    label{display:block;font-size:13px;color:#b9c6de;margin-bottom:8px}
+    input,select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(203,213,225,.12);background:rgba(2,6,23,.45);color:#e6eefc}
+    .btn{width:100%;padding:12px;border-radius:10px;border:0;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white;font-weight:700;cursor:pointer}
+    .hint{font-size:13px;color:#97a6c3;margin-top:8px}
+    .msg{display:none;padding:10px;border-radius:8px;margin-bottom:10px}
+    .msg.ok{background:#052e1e;color:#b7f3d8}
+    .msg.err{background:#3f1d1d;color:#fecaca}
+    @media(max-width:900px){.card{grid-template-columns:1fr}.hero{display:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <section class="hero">
+        <h1>KLH Campus Hub</h1>
+        <p style="margin-top:12px;color:#b6c2da">Events, registrations, lost & found and more — sign in or create an account.</p>
+        <p style="margin-top:20px;color:#97a6c3;font-size:13px">Tip: Register as faculty to create events; students can register for them.</p>
+      </section>
+
+      <section class="auth">
+        <div class="tabs">
+          <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign in</button>
+          <button class="tab" id="tab-register" onclick="switchTab('register')">Create account</button>
+        </div>
+
+        <div id="msg" class="msg"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div>
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" type="email" placeholder="you@klh.edu.in" required />
+          </div>
+          <div style="margin-top:12px">
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" type="password" placeholder="••••••••" required />
+          </div>
+          <button class="btn" type="submit" style="margin-top:12px">Sign in</button>
+          <div class="hint">No account? Click "Create account" above.</div>
+        </form>
+
+        <form id="registerForm" style="display:none" onsubmit="handleRegister(event)">
+          <div>
+            <label for="regName">Full name</label>
+            <input id="regName" type="text" placeholder="Your name" required />
+          </div>
+          <div style="margin-top:12px">
+            <label for="regEmail">Email</label>
+            <input id="regEmail" type="email" placeholder="you@klh.edu.in" required />
+          </div>
+          <div style="margin-top:12px">
+            <label for="regPassword">Password</label>
+            <input id="regPassword" type="password" placeholder="Choose a strong password" required />
+          </div>
+          <div style="margin-top:12px">
+            <label for="regRole">Role</label>
+            <select id="regRole">
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+            </select>
+          </div>
+          <button class="btn" type="submit" style="margin-top:12px">Create account</button>
+        </form>
+
+        <p class="fineprint" style="margin-top:14px;color:#9fb0cf;font-size:12px">By creating an account you agree to the demo terms.</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // API base is exposed by /assets/utils.js as __API_URL
+    const API_URL = window.__API_URL || '/api';
+
+    // showMessage delegated to shared utils
+    function showMessage(text, type='ok'){ if (window.showMessage) return window.showMessage(text, type); const el = document.getElementById('msg'); el.textContent = text; el.className = 'msg ' + (type === 'ok' ? 'ok' : 'err'); el.style.display = 'block'; setTimeout(()=>{ el.style.display = 'none'; }, 5000); }
+
+    function switchTab(tab){
+      document.getElementById('tab-login').classList.toggle('active', tab==='login');
+      document.getElementById('tab-register').classList.toggle('active', tab==='register');
+      document.getElementById('loginForm').style.display = tab==='login' ? '' : 'none';
+      document.getElementById('registerForm').style.display = tab==='register' ? '' : 'none';
+    }
+
+    async function handleRegister(e){
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      // client-side KLH email domain check (regex)
+      const klhRe = /^[A-Za-z0-9._%+-]+@klh\.edu\.in$/i;
+      if (!klhRe.test(email)) {
+        showMessage('Please use your klh.edu.in email address', 'err');
+        return;
+      }
+      const password = document.getElementById('regPassword').value;
+      const role = document.getElementById('regRole').value;
+
+      try{
+        const res = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+        const body = await res.json();
+        if(!res.ok){
+          showMessage(body.message || 'Registration failed', 'err');
+          return;
+        }
+        localStorage.setItem('token', body.token);
+        localStorage.setItem('user', JSON.stringify({ name, email, role }));
+        showMessage('Account created — redirecting...', 'ok');
+        setTimeout(()=> window.location.href = 'dashboard.html', 800);
+      }catch(err){
+        console.error(err);
+        showMessage('Network error during registration', 'err');
+      }
+    }
+
+    async function handleLogin(e){
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const klhRe = /^[A-Za-z0-9._%+-]+@klh\.edu\.in$/i;
+      if (!klhRe.test(email)) {
+        showMessage('Please use your klh.edu.in email address', 'err');
+        return;
+      }
+      const password = document.getElementById('loginPassword').value;
+      try{
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST', headers:{ 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const body = await res.json();
+        if(!res.ok){ showMessage(body.message || 'Login failed', 'err'); return; }
+        localStorage.setItem('token', body.token);
+        localStorage.setItem('user', JSON.stringify(body.user || { name: body.name || '', email }));
+        showMessage('Login successful — redirecting...', 'ok');
+        setTimeout(()=> window.location.href = 'dashboard.html', 600);
+      }catch(err){ console.error(err); showMessage('Network error during login', 'err'); }
+    }
+  </script>
+  <script src="/assets/utils.js"></script>
+</body>
+</html>
