@@ -36,11 +36,17 @@
 
     document.addEventListener('DOMContentLoaded', async function(){
       const events = await loadEventsForCalendar();
+      const today = new Date();
+      const twoYearsLater = new Date(today);
+      twoYearsLater.setFullYear(today.getFullYear() + 2);
       const calendarEl = document.getElementById('calendar');
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-        events,
+          headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+          initialDate: today.toISOString().slice(0,10),
+          validRange: { start: today.toISOString().slice(0,10), end: twoYearsLater.toISOString().slice(0,10) },
+          navLinks: true,
+          events,
         dateClick: function(info){
           if (!user.role || !['faculty','admin'].includes(user.role)) return openModal({ title: 'Create Event', body: '<p class="small muted">Only faculty & admin can create events. Please request permission.</p>' , actions:[{label:'Close'}] });
           const body = `<div style="display:grid;gap:8px"><input id='evTitle' placeholder='Title' /><input id='evDate' type='datetime-local' value='${new Date(info.dateStr).toISOString().slice(0,16)}' /><input id='evLocation' placeholder='Location' /><textarea id='evDesc' placeholder='Description'></textarea></div>`;
@@ -56,6 +62,25 @@
         }
       });
       calendar.render();
+
+      // Show a small overlay message when there are no events
+      function toggleNoEventsOverlay(){
+        const hasEvents = calendar.getEvents().length > 0;
+        let overlay = document.getElementById('no-events-overlay');
+        if (!overlay){
+          overlay = document.createElement('div');
+          overlay.id = 'no-events-overlay';
+          overlay.style.cssText = 'position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#666;padding:12px;pointer-events:none;font-size:14px;';
+          overlay.innerText = 'No events yet — calendar available for the next 2 years.';
+          calendarEl.style.position = 'relative';
+          calendarEl.appendChild(overlay);
+        }
+        overlay.style.display = hasEvents ? 'none' : 'block';
+      }
+
+      // initial overlay state and keep in sync when events change
+      toggleNoEventsOverlay();
+      calendar.on('eventsSet', toggleNoEventsOverlay);
     });
   </script>
 </body>
