@@ -19,6 +19,20 @@
         <button class="btn" onclick="location.href='events.html'">Events</button>
       </div>
     </div>
+
+    <div class="calendar-header">
+      <div class="cal-nav">
+        <div class="cal-controls">
+          <button class="btn" id="cal-prev">Prev</button>
+          <button class="btn" id="cal-today">Today</button>
+          <button class="btn" id="cal-next">Next</button>
+        </div>
+      </div>
+      <div class="cal-controls">
+        <select id="cal-month" aria-label="Select month"></select>
+        <select id="cal-year" aria-label="Select year"></select>
+      </div>
+    </div>
     <div id="calendar"></div>
   </div>
 
@@ -42,11 +56,19 @@
       const calendarEl = document.getElementById('calendar');
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-          headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-          initialDate: today.toISOString().slice(0,10),
-          validRange: { start: today.toISOString().slice(0,10), end: twoYearsLater.toISOString().slice(0,10) },
-          navLinks: true,
-          events,
+        headerToolbar: { left: false, center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+        initialDate: today.toISOString().slice(0,10),
+        validRange: { start: today.toISOString().slice(0,10), end: twoYearsLater.toISOString().slice(0,10) },
+        navLinks: true,
+        weekNumbers: true,
+        dayMaxEventRows: 3,
+        eventColor: '#2563eb',
+        eventDisplay: 'block',
+        height: 'auto',
+        events,
+        eventDidMount: function(info){
+          info.el.title = info.event.title + (info.event.extendedProps.description ? ' — ' + info.event.extendedProps.description : '');
+        },
         dateClick: function(info){
           if (!user.role || !['faculty','admin'].includes(user.role)) return openModal({ title: 'Create Event', body: '<p class="small muted">Only faculty & admin can create events. Please request permission.</p>' , actions:[{label:'Close'}] });
           const body = `<div style="display:grid;gap:8px"><input id='evTitle' placeholder='Title' /><input id='evDate' type='datetime-local' value='${new Date(info.dateStr).toISOString().slice(0,16)}' /><input id='evLocation' placeholder='Location' /><textarea id='evDesc' placeholder='Description'></textarea></div>`;
@@ -62,6 +84,32 @@
         }
       });
       calendar.render();
+
+      // populate month and year selects and wire to calendar navigation
+      const monthSelect = document.getElementById('cal-month');
+      const yearSelect = document.getElementById('cal-year');
+      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      monthNames.forEach((m,i)=>{ const o = document.createElement('option'); o.value = i; o.text = m; monthSelect.appendChild(o); });
+      const startYear = today.getFullYear();
+      for(let y = startYear; y <= startYear + 2; y++){ const o = document.createElement('option'); o.value = y; o.text = y; yearSelect.appendChild(o); }
+
+      function syncSelectors(date){
+        const d = new Date(date);
+        monthSelect.value = d.getMonth();
+        yearSelect.value = d.getFullYear();
+      }
+
+      // set initial values
+      syncSelectors(calendar.getDate());
+
+      document.getElementById('cal-prev').addEventListener('click', ()=> calendar.prev());
+      document.getElementById('cal-next').addEventListener('click', ()=> calendar.next());
+      document.getElementById('cal-today').addEventListener('click', ()=> { calendar.today(); syncSelectors(calendar.getDate()); });
+
+      monthSelect.addEventListener('change', ()=> { const y = parseInt(yearSelect.value,10); const m = parseInt(monthSelect.value,10); calendar.gotoDate(new Date(y, m, 1)); });
+      yearSelect.addEventListener('change', ()=> { const y = parseInt(yearSelect.value,10); const m = parseInt(monthSelect.value,10); calendar.gotoDate(new Date(y, m, 1)); });
+
+      calendar.on('datesSet', (info)=> syncSelectors(info.start));
 
       // Show a small overlay message when there are no events
       function toggleNoEventsOverlay(){
