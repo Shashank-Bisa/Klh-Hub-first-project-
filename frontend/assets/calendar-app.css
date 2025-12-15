@@ -1,0 +1,14 @@
+/* Simple calendar app styles */
+body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+.container { max-width: 1200px; margin: 0 auto; }
+h1 { text-align: center; margin-bottom: 20px }
+.year { margin-bottom: 40px }
+.year h2 { text-align: center; }
+.month { display: inline-block; width: 280px; margin: 10px; background: #fff; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); vertical-align: top }
+.month h3 { text-align: center; background: #222; color: #fff; margin: 0; padding: 8px; border-radius: 8px 8px 0 0; }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); padding: 8px; }
+.day-name { font-weight: bold; text-align: center; padding: 6px 0; }
+.day { text-align: center; padding: 10px; margin: 2px; min-height: 36px }
+.today { background: #4caf50; color: #fff; border-radius: 50%; width: 36px; height: 36px; display: inline-block; line-height: 36px }
+@media (max-width: 900px) { .month { width: calc(50% - 24px); } }
+@media (max-width: 520px) { .month { width: 100%; } }
