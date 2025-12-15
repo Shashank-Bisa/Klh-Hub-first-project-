@@ -33,6 +33,16 @@
         <select id="cal-year" aria-label="Select year"></select>
       </div>
     </div>
+
+    <div class="month-bar" aria-hidden="true">
+      <div class="month-name">Month</div>
+      <div class="year">Year</div>
+    </div>
+
+    <div class="top-notes">
+      <div class="note-box"><div class="label">To-Do:</div><div class="lines"></div></div>
+      <div class="note-box"><div class="label">Notes:</div><div class="lines"></div></div>
+    </div>
     <div id="calendar"></div>
   </div>
 
@@ -66,6 +76,12 @@
         eventDisplay: 'block',
         height: 'auto',
         events,
+        firstDay: 0,
+        fixedWeekCount: true,
+        dayCellContent: function(arg){
+          // show a big day number and keep event area below
+          return { html: `<div class="daynum">${arg.dayNumberText}</div>` };
+        },
         eventDidMount: function(info){
           info.el.title = info.event.title + (info.event.extendedProps.description ? ' — ' + info.event.extendedProps.description : '');
         },
@@ -97,6 +113,9 @@
         const d = new Date(date);
         monthSelect.value = d.getMonth();
         yearSelect.value = d.getFullYear();
+        // update big month header
+        document.querySelector('.month-bar .month-name').innerText = monthNames[d.getMonth()];
+        document.querySelector('.month-bar .year').innerText = d.getFullYear();
       }
 
       // set initial values
