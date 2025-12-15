@@ -59,7 +59,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', async function(){
-      const events = await loadEventsForCalendar();
+      let events = [];
+      try{
+        events = await loadEventsForCalendar();
+      }catch(err){
+        console.error('Failed to load events for calendar:', err);
+        showMessage('Could not load events — showing empty calendar','err');
+        events = [];
+      }
       const today = new Date();
       const twoYearsLater = new Date(today);
       twoYearsLater.setFullYear(today.getFullYear() + 2);
