@@ -4,11 +4,16 @@ body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
 h1 { text-align: center; margin-bottom: 20px }
 .year { margin-bottom: 40px }
 .year h2 { text-align: center; }
-.month { display: inline-block; width: 280px; margin: 10px; background: #fff; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); vertical-align: top }
-.month h3 { text-align: center; background: #222; color: #fff; margin: 0; padding: 8px; border-radius: 8px 8px 0 0; }
-.grid { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 20px; padding: 8px }
-.day-name { font-weight: bold; text-align: center; }
-.day { padding: 4px; text-align: center }
-.today { background: #4caf50; color: #fff; border-radius: 50%; width: 36px; height: 36px; display: inline-block; line-height: 36px }
-@media (max-width: 900px) { .month { width: calc(50% - 24px); } }
-@media (max-width: 520px) { .month { width: 100%; } }
+..month { display: block; width: 320px; margin: 10px; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(2,6,23,0.08); overflow: hidden }
+.month h3 { text-align: center; background: #111; color: #fff; margin: 0; padding: 12px 10px; border-radius: 12px 12px 0 0; font-weight:700 }
+.year { margin-bottom: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start }
+.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 0; padding: 12px }
+.day-name { font-weight: 700; text-align: center; padding-bottom: 8px; color:#111 }
+.day { padding: 8px 6px; text-align: center; min-height: 46px; display:flex;align-items:center;justify-content:center;color:#111 }
+.today { background: #4caf50; color: #fff; border-radius: 50%; width: 40px; height: 40px; display: inline-block; line-height: 40px; font-weight:700 }
+
+/* Make empty grid cells keep spacing */
+.grid > div { min-height: 46px }
+
+@media (max-width: 1100px) { .year { grid-template-columns: repeat(2, 1fr) } .month { width: 100% } }
+@media (max-width: 600px) { .year { grid-template-columns: 1fr } .month { width: 100% } }
