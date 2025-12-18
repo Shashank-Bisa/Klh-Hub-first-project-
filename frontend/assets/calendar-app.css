@@ -10,7 +10,7 @@ body { font-family: Arial, sans-serif; background: var(--bg); padding: 20px; col
 .container { max-width: 1200px; margin: 0 auto; }
 h1 { text-align: center; margin-bottom: 20px; color: var(--primary-dark) }
 .year { margin-bottom: 40px }
-.year h2 { text-align: center; color: var(--primary-dark); margin: 12px 0 }
+ .year h2 { grid-column: 1 / -1; text-align: center; color: var(--primary-dark); margin: 8px 0 16px; justify-self: center; font-size:22px }
 .month { display: block; width: 320px; margin: 10px; background: var(--card); border-radius: 12px; box-shadow: 0 10px 30px rgba(16,24,40,0.06); overflow: hidden }
 .month h3 { text-align: center; background: var(--primary); color: #fff; margin: 0; padding: 14px 10px; border-radius: 12px 12px 0 0; font-weight:700; font-size:18px }
 .year { margin-bottom: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start }
