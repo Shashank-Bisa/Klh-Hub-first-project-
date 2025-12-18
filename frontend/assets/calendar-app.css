@@ -1,19 +1,29 @@
-/* Minimal calendar styles (from user) */
-body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+/* Blue & White themed calendar styles */
+:root{
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --bg:#f6f9ff;
+  --card:#ffffff;
+  --muted:#6b7280;
+}
+body { font-family: Arial, sans-serif; background: var(--bg); padding: 20px; color: #0f172a }
 .container { max-width: 1200px; margin: 0 auto; }
-h1 { text-align: center; margin-bottom: 20px }
+h1 { text-align: center; margin-bottom: 20px; color: var(--primary-dark) }
 .year { margin-bottom: 40px }
-.year h2 { text-align: center; }
-..month { display: block; width: 320px; margin: 10px; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(2,6,23,0.08); overflow: hidden }
-.month h3 { text-align: center; background: #111; color: #fff; margin: 0; padding: 12px 10px; border-radius: 12px 12px 0 0; font-weight:700 }
+.year h2 { text-align: center; color: var(--primary-dark); margin: 12px 0 }
+.month { display: block; width: 320px; margin: 10px; background: var(--card); border-radius: 12px; box-shadow: 0 10px 30px rgba(16,24,40,0.06); overflow: hidden }
+.month h3 { text-align: center; background: var(--primary); color: #fff; margin: 0; padding: 14px 10px; border-radius: 12px 12px 0 0; font-weight:700; font-size:18px }
 .year { margin-bottom: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start }
-.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 0; padding: 12px }
-.day-name { font-weight: 700; text-align: center; padding-bottom: 8px; color:#111 }
-.day { padding: 8px 6px; text-align: center; min-height: 46px; display:flex;align-items:center;justify-content:center;color:#111 }
-.today { background: #4caf50; color: #fff; border-radius: 50%; width: 40px; height: 40px; display: inline-block; line-height: 40px; font-weight:700 }
+.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 0; padding: 12px }
+.day-name { font-weight: 700; text-align: center; padding-bottom: 8px; color: var(--primary-dark) }
+.day { padding: 8px 6px; text-align: center; min-height: 50px; display:flex;align-items:center;justify-content:center;color:#0f172a;border-radius:8px }
+.today { background: var(--primary); color: #fff; border-radius: 50%; width: 40px; height: 40px; display: inline-block; line-height: 40px; font-weight:700 }
+
+/* subtle cell hover */
+.day:hover{ background: rgba(37,99,235,0.06); }
 
 /* Make empty grid cells keep spacing */
-.grid > div { min-height: 46px }
+.grid > div { min-height: 50px }
 
 @media (max-width: 1100px) { .year { grid-template-columns: repeat(2, 1fr) } .month { width: 100% } }
 @media (max-width: 600px) { .year { grid-template-columns: 1fr } .month { width: 100% } }
