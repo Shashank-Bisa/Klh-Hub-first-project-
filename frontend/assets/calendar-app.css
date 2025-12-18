@@ -14,15 +14,24 @@ h1 { text-align: center; margin-bottom: 20px; color: var(--primary-dark) }
 .month { display: block; width: 320px; margin: 10px; background: var(--card); border-radius: 12px; box-shadow: 0 10px 30px rgba(16,24,40,0.06); overflow: hidden }
 .month h3 { text-align: center; background: var(--primary); color: #fff; margin: 0; padding: 14px 10px; border-radius: 12px 12px 0 0; font-weight:700; font-size:18px }
 .year { margin-bottom: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start }
-.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 0; padding: 12px }
+.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 0; padding: 12px; /* draw horizontal week separators */ background-image: linear-gradient(rgba(16,24,40,0.04) 0px, rgba(16,24,40,0.04) 1px, transparent 1px); background-size: 100% 64px; background-repeat: repeat-y; }
 .day-name { font-weight: 700; text-align: center; padding-bottom: 8px; color: var(--primary-dark) }
 .day { padding: 8px 6px; min-height: 64px; display:flex;align-items:flex-start;justify-content:flex-start;color:#0f172a;border-radius:8px;position:relative }
 .day-num{position:absolute;top:8px;right:8px;font-size:13px;color:var(--muted);font-weight:600}
 .day .today{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-weight:700}
-.day.has-note::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--primary-dark)}
+.day.has-note::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--primary-dark);box-shadow:0 0 0 2px rgba(37,99,235,0.06)}
 
 /* subtle cell hover */
 .day:hover{ background: rgba(37,99,235,0.04); }
+
+/* keyboard focus */
+.day:focus{ outline:none; box-shadow: 0 0 0 4px rgba(37,99,235,0.12); border-radius:8px }
+
+/* make month header a subtle gradient */
+.month h3{ background: linear-gradient(180deg,var(--primary),var(--primary-dark)); }
+
+/* small vertical divider between months when wide */
+.month{ border-left: 1px solid rgba(16,24,40,0.02); }
 
 /* subtle cell hover */
 .day:hover{ background: rgba(37,99,235,0.06); }
